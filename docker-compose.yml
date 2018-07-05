@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.4'
 
 services:
 
@@ -8,37 +8,37 @@ services:
     ports:
       - "53:53/udp"
     environment:
-      # - USE_GENERIC_CACHE=false
-      - LANCACHE_IP=steamcache
-      # - STEAMCACHE_IP=steamcache
+      - USE_GENERIC_CACHE=false
+      # - LANCACHE_IP=genericcache
+      - STEAMCACHE_IP=steamcache
       # - ORIGINCACHE_IP=origincache
       # - BLIZZARDCACHE_IP=blizzardcache
       # - UPLAYCACHE_IP=uplaycache
       # - FRONTIERCACHE_IP=frontiercache
       # - RIOTCACHE_IP=riotcache
       # - WINDOWSCACHE_IP=windowscache
-      # - DISABLE_STEAM=false
-      # - DISABLE_ORIGIN=true
-      # - DISABLE_BLIZZARD=true
-      # - DISABLE_UPLAY=true
-      # - DISABLE_FRONTIER=true
-      # - DISABLE_RIOT=true
-      # - DISABLE_WINDOWS=true
+      - DISABLE_STEAM=false
+      - DISABLE_ORIGIN=true
+      - DISABLE_BLIZZARD=true
+      - DISABLE_UPLAY=true
+      - DISABLE_FRONTIER=true
+      - DISABLE_RIOT=true
+      - DISABLE_WINDOWS=true
       - UPSTREAM_DNS=8.8.8.8
     networks:
-      - gamecache_vlan
+      gamecache_vlan:
+        ipv4_address: 192.168.1.253
     restart: unless-stopped
     volumes:
-      - /srv/gamecache/dns:/data/cache/bind
-      - /var/log/gamecache/dns/info:/data/info
-      - /var/log/gamecache/dns/logs:/data/logs
-      - /tmp/gamecache/dns:/tmp
+      - gamecache-dns-volume:/data
+      - gamecache-dns-volume:/tmp
+      - gamecache-dns-volume:/var/logs
 
   steamcache:
     image: steamcache/steamcache:latest
     container_name: steamcache
     ports:
-      - "80:80"
+      - "80"
     environment:
       - CACHE_MEM_SIZE=1024m
       - CACHE_DISK_SIZE=1024g
@@ -46,16 +46,26 @@ services:
       - gamecache_vlan
     restart: unless-stopped
     volumes:
-      - /srv/gamecache/steam:/data/cache
-      - /var/log/gamecache/steam:/data/logs
-      - /tmp/gamecache/steam:/tmp
+      - steamcache-volume:/data
+      - steamcache-volume:/tmp
 
 networks:
   gamecache_vlan:
-    driver: bridge
-    # driver: macvlan
-    # driver_opts:
-    #   parent: enp1s0f0.30
-    # ipam:
-    #   config:
-    #     - subnet: 192.168.0.0/24
+    driver: macvlan
+    driver_opts:
+      parent: enp1s0f0.30
+    ipam:
+      config:
+        - subnet: 192.168.1.0/24
+
+volumes:
+  gamecache-dns-volume:
+    driver_opts:
+      type: none 
+      device: /srv/docker/gamecache/dns
+      o: bind
+  steamcache-volume:
+    driver_opts:
+      type: none 
+      device: /srv/docker/gamecache/steam
+      o: bind
