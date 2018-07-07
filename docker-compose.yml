@@ -1,4 +1,4 @@
-version: '3.4'
+version: '2.3'
 
 services:
 
@@ -10,7 +10,7 @@ services:
     environment:
       - USE_GENERIC_CACHE=false
       # - LANCACHE_IP=genericcache
-      - STEAMCACHE_IP=steamcache
+      - STEAMCACHE_IP=192.168.1.240
       # - ORIGINCACHE_IP=origincache
       # - BLIZZARDCACHE_IP=blizzardcache
       # - UPLAYCACHE_IP=uplaycache
@@ -43,7 +43,8 @@ services:
       - CACHE_MEM_SIZE=1024m
       - CACHE_DISK_SIZE=1024g
     networks:
-      - gamecache_vlan
+      gamecache_vlan:
+        ipv4_address: 192.168.1.240
     restart: unless-stopped
     volumes:
       - steamcache-volume:/data
@@ -53,10 +54,12 @@ networks:
   gamecache_vlan:
     driver: macvlan
     driver_opts:
-      parent: enp1s0f0.30
+      parent: enp1s0f1.30
     ipam:
       config:
         - subnet: 192.168.1.0/24
+          gateway: 192.168.1.1
+          ip_range: 192.168.1.0/24
 
 volumes:
   gamecache-dns-volume:
