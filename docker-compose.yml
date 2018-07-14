@@ -1,4 +1,4 @@
-version: '2.3'
+version: '3.4'
 
 services:
 
@@ -6,7 +6,7 @@ services:
     image: steamcache/steamcache-dns:latest
     container_name: gamecache-dns
     ports:
-      - "53:53/udp"
+      - "53"
     environment:
       - USE_GENERIC_CACHE=false
       # - LANCACHE_IP=genericcache
@@ -35,7 +35,7 @@ services:
       - gamecache-dns-volume:/var/logs
 
   steamcache:
-    image: steamcache/steamcache:latest
+    image: steamcache/generic:latest
     container_name: steamcache
     ports:
       - "80"
@@ -47,19 +47,17 @@ services:
         ipv4_address: 192.168.1.240
     restart: unless-stopped
     volumes:
-      - steamcache-volume:/data
-      - steamcache-volume:/tmp
+      - steamcache-volume:/data/cache
+      - steamcache-volume:/data/logs
 
 networks:
   gamecache_vlan:
     driver: macvlan
     driver_opts:
-      parent: enp1s0f1.30
+      parent: enp1s0f1
     ipam:
       config:
         - subnet: 192.168.1.0/24
-          gateway: 192.168.1.1
-          ip_range: 192.168.1.0/24
 
 volumes:
   gamecache-dns-volume:
