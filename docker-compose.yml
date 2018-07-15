@@ -11,19 +11,19 @@ services:
       - USE_GENERIC_CACHE=false
       # - LANCACHE_IP=genericcache
       - STEAMCACHE_IP=192.168.1.240
-      # - ORIGINCACHE_IP=origincache
-      # - BLIZZARDCACHE_IP=blizzardcache
-      # - UPLAYCACHE_IP=uplaycache
+      - ORIGINCACHE_IP=192.168.1.241
+      - BLIZZARDCACHE_IP=192.168.1.242
+      - UPLAYCACHE_IP=192.168.1.243
       # - FRONTIERCACHE_IP=frontiercache
       # - RIOTCACHE_IP=riotcache
-      # - WINDOWSCACHE_IP=windowscache
+      - WINDOWSCACHE_IP=192.168.1.246
       - DISABLE_STEAM=false
-      - DISABLE_ORIGIN=true
-      - DISABLE_BLIZZARD=true
-      - DISABLE_UPLAY=true
+      - DISABLE_ORIGIN=false
+      - DISABLE_BLIZZARD=false
+      - DISABLE_UPLAY=false
       - DISABLE_FRONTIER=true
       - DISABLE_RIOT=true
-      - DISABLE_WINDOWS=true
+      - DISABLE_WINDOWS=false
       - UPSTREAM_DNS=8.8.8.8
     networks:
       gamecache_vlan:
@@ -50,6 +50,70 @@ services:
       - steamcache-volume:/data/cache
       - steamcache-volume:/data/logs
 
+  origincache:
+    image: steamcache/generic:latest
+    container_name: origincache
+    ports:
+      - "80"
+    environment:
+      - CACHE_MEM_SIZE=1024m
+      - CACHE_DISK_SIZE=1024g
+    networks:
+      gamecache_vlan:
+        ipv4_address: 192.168.1.241
+    restart: unless-stopped
+    volumes:
+      - origincache-volume:/data/cache
+      - origincache-volume:/data/logs
+
+  blizzardcache:
+    image: steamcache/generic:latest
+    container_name: blizzardcache
+    ports:
+      - "80"
+    environment:
+      - CACHE_MEM_SIZE=1024m
+      - CACHE_DISK_SIZE=1024g
+    networks:
+      gamecache_vlan:
+        ipv4_address: 192.168.1.242
+    restart: unless-stopped
+    volumes:
+      - blizzardcache-volume:/data/cache
+      - blizzardcache-volume:/data/logs
+
+  uplaycache:
+    image: steamcache/generic:latest
+    container_name: uplaycache
+    ports:
+      - "80"
+    environment:
+      - CACHE_MEM_SIZE=1024m
+      - CACHE_DISK_SIZE=1024g
+    networks:
+      gamecache_vlan:
+        ipv4_address: 192.168.1.243
+    restart: unless-stopped
+    volumes:
+      - uplaycache-volume:/data/cache
+      - uplaycache-volume:/data/logs
+
+  windowscache:
+    image: steamcache/generic:latest
+    container_name: windowscache
+    ports:
+      - "80"
+    environment:
+      - CACHE_MEM_SIZE=1024m
+      - CACHE_DISK_SIZE=1024g
+    networks:
+      gamecache_vlan:
+        ipv4_address: 192.168.1.246
+    restart: unless-stopped
+    volumes:
+      - windowscache-volume:/data/cache
+      - windowscache-volume:/data/logs
+
 networks:
   gamecache_vlan:
     driver: macvlan
@@ -69,4 +133,24 @@ volumes:
     driver_opts:
       type: none 
       device: /srv/docker/gamecache/steam
+      o: bind
+  origincache-volume:
+    driver_opts:
+      type: none
+      device: /srv/docker/gamecache/origin
+      o: bind
+  blizzardcache-volume:
+    driver_opts:
+      type: none
+      device: /srv/docker/gamecache/blizzard
+      o: bind
+  uplaycache-volume:
+    driver_opts:
+      type: none
+      device: /srv/docker/gamecache/uplay
+      o: bind
+  windowscache-volume:
+    driver_opts:
+      type: none
+      device: /srv/docker/gamecache/windows
       o: bind
