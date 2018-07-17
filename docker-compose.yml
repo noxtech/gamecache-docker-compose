@@ -34,6 +34,15 @@ services:
       - gamecache-dns-volume:/tmp
       - gamecache-dns-volume:/var/logs
 
+  sniproxy:
+    image: steamcache/sniproxy:latest
+    container_name: gamecache-sniproxy
+    ports:
+      - "443:443"
+    networks:
+      - gamecache_vlan
+    restart: unless-stopped
+
   steamcache:
     image: steamcache/generic:latest
     container_name: steamcache
