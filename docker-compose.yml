@@ -1,4 +1,4 @@
-version: '3.4'
+version: '2'
 
 services:
 
@@ -30,9 +30,9 @@ services:
         ipv4_address: 192.168.1.253
     restart: unless-stopped
     volumes:
-      - gamecache-dns-volume:/data
-      - gamecache-dns-volume:/tmp
-      - gamecache-dns-volume:/var/logs
+      - /srv/quickload/docker-volumes/gamecache/dns:/data
+      - /srv/quickload/docker-volumes/gamecache/dns:/tmp
+      - /srv/quickload/docker-volumes/gamecache/dns:/var/logs
 
   sniproxy:
     image: steamcache/sniproxy:latest
@@ -56,8 +56,8 @@ services:
         ipv4_address: 192.168.1.240
     restart: unless-stopped
     volumes:
-      - steamcache-volume:/data/cache
-      - steamcache-volume:/data/logs
+      - /srv/store/docker-volumes/gamecache/steam:/data/cache
+      - /srv/store/docker-volumes/gamecache/steam:/data/logs
 
   origincache:
     image: steamcache/generic:latest
@@ -72,8 +72,8 @@ services:
         ipv4_address: 192.168.1.241
     restart: unless-stopped
     volumes:
-      - origincache-volume:/data/cache
-      - origincache-volume:/data/logs
+      - /srv/store/docker-volumes/gamecache/origin:/data/cache
+      - /srv/store/docker-volumes/gamecache/origin:/data/logs
 
   blizzardcache:
     image: steamcache/generic:latest
@@ -88,8 +88,8 @@ services:
         ipv4_address: 192.168.1.242
     restart: unless-stopped
     volumes:
-      - blizzardcache-volume:/data/cache
-      - blizzardcache-volume:/data/logs
+      - /srv/store/docker-volumes/gamecache/blizzard:/data/cache
+      - /srv/store/docker-volumes/gamecache/blizzard:/data/logs
 
   uplaycache:
     image: steamcache/generic:latest
@@ -104,8 +104,8 @@ services:
         ipv4_address: 192.168.1.243
     restart: unless-stopped
     volumes:
-      - uplaycache-volume:/data/cache
-      - uplaycache-volume:/data/logs
+      - /srv/store/docker-volumes/gamecache/uplay:/data/cache
+      - /srv/store/docker-volumes/gamecache/uplay:/data/logs
 
   windowscache:
     image: steamcache/generic:latest
@@ -120,8 +120,8 @@ services:
         ipv4_address: 192.168.1.246
     restart: unless-stopped
     volumes:
-      - windowscache-volume:/data/cache
-      - windowscache-volume:/data/logs
+      - /srv/store/docker-volumes/gamecache/windows:/data/cache
+      - /srv/store/docker-volumes/gamecache/windows:/data/logs
 
 networks:
   gamecache_vlan:
@@ -131,35 +131,3 @@ networks:
     ipam:
       config:
         - subnet: 192.168.1.0/24
-
-volumes:
-  gamecache-dns-volume:
-    driver_opts:
-      type: none 
-      device: /srv/docker/gamecache/dns
-      o: bind
-  steamcache-volume:
-    driver_opts:
-      type: none 
-      device: /srv/docker/gamecache/steam
-      o: bind
-  origincache-volume:
-    driver_opts:
-      type: none
-      device: /srv/docker/gamecache/origin
-      o: bind
-  blizzardcache-volume:
-    driver_opts:
-      type: none
-      device: /srv/docker/gamecache/blizzard
-      o: bind
-  uplaycache-volume:
-    driver_opts:
-      type: none
-      device: /srv/docker/gamecache/uplay
-      o: bind
-  windowscache-volume:
-    driver_opts:
-      type: none
-      device: /srv/docker/gamecache/windows
-      o: bind
