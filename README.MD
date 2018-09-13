@@ -1,6 +1,6 @@
 # GameCache Docker Compose
 
-Uses steamcache:steamcache-dns and steamcache:generic to make a collection of game server caches.
+Uses [steamcache:steamcache-dns](https://github.com/steamcache/steamcache-dns) and [steamcache:generic](https://github.com/steamcache/steamcache) to make a collection of game server caches.
 
 This brings up:
 
