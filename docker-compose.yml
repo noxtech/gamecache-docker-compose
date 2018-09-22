@@ -1,38 +1,45 @@
 version: '2'
-
+ 
 services:
-
-  gamecache-dns:
+ 
+  gamecache-dns-ext:
     image: steamcache/steamcache-dns:latest
-    container_name: gamecache-dns
+    container_name: gamecache-dns-ext
     ports:
       - "53"
     environment:
-      - USE_GENERIC_CACHE=false
-      # - LANCACHE_IP=genericcache
+#      - USE_GENERIC_CACHE=false
+#      - LANCACHE_IP=genericcache
       - STEAMCACHE_IP=192.168.1.240
       - ORIGINCACHE_IP=192.168.1.241
       - BLIZZARDCACHE_IP=192.168.1.242
       - UPLAYCACHE_IP=192.168.1.243
-      # - FRONTIERCACHE_IP=frontiercache
-      # - RIOTCACHE_IP=riotcache
-      - WINDOWSCACHE_IP=192.168.1.246
-      - DISABLE_STEAM=false
-      - DISABLE_ORIGIN=false
-      - DISABLE_BLIZZARD=false
-      - DISABLE_UPLAY=false
-      - DISABLE_FRONTIER=true
-      - DISABLE_RIOT=true
-      - DISABLE_WINDOWS=false
+      - RENEGADEXCACHE_IP=192.168.1.244
+      - WSUSCACHE_IP=192.168.1.245
       - UPSTREAM_DNS=8.8.8.8
     networks:
-      gamecache_vlan:
+      enp1s0f1_vlan:
         ipv4_address: 192.168.1.253
     restart: unless-stopped
-    volumes:
-      - /srv/quickload/docker-volumes/gamecache/dns:/data
-      - /srv/quickload/docker-volumes/gamecache/dns:/tmp
-      - /srv/quickload/docker-volumes/gamecache/dns:/var/logs
+ 
+  gamecache-dns-int:
+    image: steamcache/steamcache-dns:latest
+    container_name: gamecache-dns-int
+    ports:
+      - "53:53"
+    environment:
+#      - USE_GENERIC_CACHE=false
+#      - LANCACHE_IP=genericcache
+      - STEAMCACHE_IP=172.16.1.240
+      - ORIGINCACHE_IP=172.16.1.241
+      - BLIZZARDCACHE_IP=172.16.1.242
+      - UPLAYCACHE_IP=172.16.1.243
+      - RENEGADEXCACHE_IP=172.16.1.244
+      - WSUSCACHE_IP=172.16.1.245
+      - UPSTREAM_DNS=8.8.8.8
+    networks:
+      - internal_lan
+    restart: unless-stopped
 
   sniproxy:
     image: steamcache/sniproxy:latest
@@ -40,9 +47,9 @@ services:
     ports:
       - "443:443"
     networks:
-      - gamecache_vlan
+      - enp1s0f1_vlan
     restart: unless-stopped
-
+ 
   steamcache:
     image: steamcache/generic:latest
     container_name: steamcache
@@ -52,12 +59,14 @@ services:
       - CACHE_MEM_SIZE=1024m
       - CACHE_DISK_SIZE=1024g
     networks:
-      gamecache_vlan:
+      enp1s0f1_vlan:
         ipv4_address: 192.168.1.240
+      internal_lan:
+        ipv4_address: 172.16.1.240
     restart: unless-stopped
     volumes:
-      - /srv/store/docker-volumes/gamecache/steam:/data/cache
-      - /srv/store/docker-volumes/gamecache/steam:/data/logs
+      - /mnt/store/docker-volumes/gamecache/steam:/data/cache
+      - /mnt/store/docker-volumes/gamecache/steam:/data/logs
 
   origincache:
     image: steamcache/generic:latest
@@ -68,12 +77,14 @@ services:
       - CACHE_MEM_SIZE=1024m
       - CACHE_DISK_SIZE=1024g
     networks:
-      gamecache_vlan:
+      enp1s0f1_vlan:
         ipv4_address: 192.168.1.241
+      internal_lan:
+        ipv4_address: 172.16.1.241
     restart: unless-stopped
     volumes:
-      - /srv/store/docker-volumes/gamecache/origin:/data/cache
-      - /srv/store/docker-volumes/gamecache/origin:/data/logs
+      - /mnt/store/docker-volumes/gamecache/origin:/data/cache
+      - /mnt/store/docker-volumes/gamecache/origin:/data/logs
 
   blizzardcache:
     image: steamcache/generic:latest
@@ -84,12 +95,14 @@ services:
       - CACHE_MEM_SIZE=1024m
       - CACHE_DISK_SIZE=1024g
     networks:
-      gamecache_vlan:
+      enp1s0f1_vlan:
         ipv4_address: 192.168.1.242
+      internal_lan:
+        ipv4_address: 172.16.1.242
     restart: unless-stopped
     volumes:
-      - /srv/store/docker-volumes/gamecache/blizzard:/data/cache
-      - /srv/store/docker-volumes/gamecache/blizzard:/data/logs
+      - /mnt/store/docker-volumes/gamecache/blizzard:/data/cache
+      - /mnt/store/docker-volumes/gamecache/blizzard:/data/logs
 
   uplaycache:
     image: steamcache/generic:latest
@@ -100,12 +113,32 @@ services:
       - CACHE_MEM_SIZE=1024m
       - CACHE_DISK_SIZE=1024g
     networks:
-      gamecache_vlan:
+      enp1s0f1_vlan:
         ipv4_address: 192.168.1.243
+      internal_lan:
+        ipv4_address: 172.16.1.243
     restart: unless-stopped
     volumes:
-      - /srv/store/docker-volumes/gamecache/uplay:/data/cache
-      - /srv/store/docker-volumes/gamecache/uplay:/data/logs
+      - /mnt/store/docker-volumes/gamecache/uplay:/data/cache
+      - /mnt/store/docker-volumes/gamecache/uplay:/data/logs
+
+  renegadexcache:
+    image: steamcache/generic:latest
+    container_name: renegadexcache
+    ports:
+      - "80"
+    environment:
+      - CACHE_MEM_SIZE=1024m
+      - CACHE_DISK_SIZE=1024g
+    networks:
+      enp1s0f1_vlan:
+        ipv4_address: 192.168.1.244
+      internal_lan:
+        ipv4_address: 172.16.1.244
+    restart: unless-stopped
+    volumes:
+      - /mnt/store/docker-volumes/gamecache/renegadex:/data/cache
+      - /mnt/store/docker-volumes/gamecache/renegadex:/data/logs
 
   windowscache:
     image: steamcache/generic:latest
@@ -116,18 +149,27 @@ services:
       - CACHE_MEM_SIZE=1024m
       - CACHE_DISK_SIZE=1024g
     networks:
-      gamecache_vlan:
-        ipv4_address: 192.168.1.246
+      enp1s0f1_vlan:
+        ipv4_address: 192.168.1.245
+      internal_lan:
+        ipv4_address: 172.16.1.245
     restart: unless-stopped
     volumes:
-      - /srv/store/docker-volumes/gamecache/windows:/data/cache
-      - /srv/store/docker-volumes/gamecache/windows:/data/logs
+      - /mnt/store/docker-volumes/gamecache/windows:/data/cache
+      - /mnt/store/docker-volumes/gamecache/windows:/data/logs
 
 networks:
-  gamecache_vlan:
+#  enp1s0f1_vlan:
+#    external:
+#      name: enp1s0f1_vlan
+  enp1s0f1_vlan:
     driver: macvlan
     driver_opts:
       parent: enp1s0f1
     ipam:
       config:
         - subnet: 192.168.1.0/24
+  internal_lan:
+    ipam:
+      config:
+        - subnet: 172.16.0.0/16
