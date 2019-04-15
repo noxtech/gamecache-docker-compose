@@ -1,16 +1,12 @@
 # GameCache Docker Compose
 
-Uses [steamcache:steamcache-dns](https://github.com/steamcache/steamcache-dns) and [steamcache:generic](https://github.com/steamcache/steamcache) to make a collection of game server caches.
+Uses [steamcache:steamcache-dns](https://github.com/steamcache/steamcache-dns) and [steamcache:monolithic](https://github.com/steamcache/monolithic) to make various CDN caches.
 
 This brings up:
 
-* DNS
-* Steam cache
-* Origin cache
-* Blizzard cache
-* Uplay cache
-* Windows cache
+* Sniproxy
+* Steamcache DNS
+* Steamcache Monolithic
 
-This also binds it to a specific interface. You may need to enable promiscuous mode so that multiple IPs / MAC addresses can reside on one interface.
+This binds to the host and uses ports 53 (dns), 80 (cache), 443 (ssl), so you might need to disable dnsmasq if running Ubuntu 18.04.
 
-Configure your DNS to point to 192.168.1.253 (or change all the IPs in docker-compose.yml as required).
